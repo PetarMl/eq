@@ -29,7 +29,7 @@ pipeline{
         stage('Build'){
             steps{
                 echo "Build verzina: ${VERSION} sa sufixom :${RELEASE_VERSION}"
-                sh'mvn -f java-tomcat-sample/pom.xml clean pacakge '
+                sh'mvn -f java-tomcat-sample/pom.xml clean package '
             }
         }
     }
