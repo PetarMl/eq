@@ -1,0 +1,42 @@
+pipeline{
+    agent any
+
+    environment {
+        VERSION = '0.1.0'
+        RELEASE_VERSION = 'R.2'
+    }
+
+    stages{
+        stage('Audit tools(Verzija alatki)'){
+            steps{
+                sh '''
+                    git version
+                    java -version
+                    mvn --version
+                '''
+            }
+        }
+        stage('Unit Test'){
+            steps{
+                dir('./java-tomcat-sample'){
+                    sh '''
+                        echo "Izvrsavanje Unit testova..."
+                        mvn test
+                    '''
+                }
+            }
+        }
+        stage('Build'){
+            steps{
+                echo "Build verzina: ${VERSION} sa sufixom :${RELEASE_VERSION}"
+                   dir('./java-tomcat-sample'){
+                sh '''
+                mvn versions:set-DnewVersion="${VERSION}"-SNAPSHOT
+                mvn versions:update-child-modules
+                mvn clean package 
+                 '''
+            }
+            }
+        }
+    }
+}
