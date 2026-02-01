@@ -31,7 +31,7 @@ pipeline{
                 echo "Build verzina: ${VERSION} sa sufixom :${RELEASE_VERSION}"
                    dir('./java-tomcat-sample'){
                 sh '''
-                mvn versions:set-DnewVersion="${VERSION}"-SNAPSHOT
+                mvn versions:set -DnewVersion="${VERSION}"-SNAPSHOT
                 mvn versions:update-child-modules
                 mvn clean package 
                  '''
