@@ -1,0 +1,61 @@
+pipeline{
+    agent any
+    
+    parameters{
+        booleanParam(name: 'RELEASE', defaultValue: false, description: "Da li je ovo verzija za Release?")
+    }
+    environment {
+        VERSION = '1.1.0'
+        INT_VERSION = 'R.2'
+    }
+
+    stages{
+        stage('Audit tools(Verzija alatki)'){
+            steps{
+                sh '''
+                    git version
+                    java -version
+                    mvn --version
+                '''
+            }
+        }
+        stage('Unit Test'){
+            steps{
+                dir('./java-tomcat-sample'){
+                    sh '''
+                        echo "Izvrsavanje Unit testova..."
+                        mvn test
+                    '''
+                }
+            }
+        }
+        stage('Build'){
+            environment{
+                VERSION_SUFFIX="${sh(script: 'if ["${RELEASE}" = false]; then echo -n "${INT_VERSION}"ci:"${BUILD_NUMBER}"; else -n "${BUILD_NUMBER}";fi',returnStdout: true)}"
+            }
+            steps{
+                echo "Build verzina: ${INT_VERSION} sa sufixom :${VERSION}"
+                   dir('./java-tomcat-sample'){
+                sh '''
+                mvn versions:set -DnewVersion="${VERSION}"-SNAPSHOT
+                mvn versions:update-child-modules
+                mvn clean package 
+                 '''
+            }
+            }
+        }
+        stage('Publish'){
+            when{
+                expression { return params.RELEASE }
+            }
+            steps{
+                archiveArtifacts('**/*.war')
+            }
+        }
+    }
+    post{
+        always{
+            cleanws()
+        }
+    }
+}
