@@ -61,7 +61,8 @@ void auditTools() {
 String packageExtension(){
     if(params.RELEASE){
         return env.RELEASE_VERSION + "+" + env.BUILD_NUMBER
-    else
+        }
+    else{
         return env.INT_VERSION + "+" + env.BUILD_NUMBER
     }
 }
