@@ -27,6 +27,8 @@ pipeline{
         stage('Build'){
             environment{
              VERSION_SUFFIX= packageExtension()
+             
+            }
             steps{
                 echo "Build verzina: ${INT_VERSION} sa sufixom :${VERSION}"
                    dir('./java-tomcat-sample'){
