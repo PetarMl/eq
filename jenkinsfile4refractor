@@ -1,0 +1,75 @@
+pipeline{
+    agent any 
+    parameters{
+        booleanParam(name: 'RELEASE', defaultValue: false, description: "Da li je ovo verzija za Release?")
+    }
+    environment {
+        VERSION = '1.1.0'
+        INT_VERSION = 'R.2'
+    }
+
+    stages{
+        stage('Audit tools(Verzija alatki)'){
+            steps{
+            auditTools()
+            }
+        }
+        stage('Unit Test'){
+            steps{
+                dir('./java-tomcat-sample'){
+                    sh '''
+                        echo "Izvrsavanje Unit testova..."
+                        mvn test
+                    '''
+                }
+            }
+        }
+        stage('Build'){
+            environment{
+             VERSION_SUFFIX= packageExtension()
+            steps{
+                echo "Build verzina: ${INT_VERSION} sa sufixom :${VERSION}"
+                   dir('./java-tomcat-sample'){
+                    packageVersion()
+            }
+            }
+        }
+        stage('Publish'){
+            when{
+                expression { return params.RELEASE }
+            }
+            steps{
+                archiveArtifacts('**/*.war')
+            }
+        }
+    }
+    post{
+        always{
+            cleanWs()
+        }
+    }
+}
+}
+
+void auditTools() {
+            sh '''
+                    git version
+                    java -version
+                    mvn --version
+                '''
+}
+String packageExtension(){
+    if(params.RELEASE){
+        return env.RELEASE_VERSION + "+" + env.BUILD_NUMBER
+    else
+        return env.INT_VERSION + "+" + env.BUILD_NUMBER
+    }
+}
+
+void packageVersion(){
+  sh '''
+                mvn versions:set -DnewVersion="${VERSION}"-SNAPSHOT
+                mvn versions:update-child-modules
+                mvn clean package 
+                 '''
+} 
