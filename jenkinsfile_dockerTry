@@ -1,0 +1,42 @@
+pipeline{
+    agent {
+        docker{
+            image: 'maven:latest'
+            args '-u root'
+        }
+    }
+
+    environment {
+        VERSION = '0.1.0'
+        RELEASE_VERSION = 'R.2'
+    }
+
+    stages{
+        stage('Audit tools(Verzija alatki)'){
+            steps{
+                sh '''
+                    java -version
+                    mvn --version
+                '''
+                sh 'printenv'
+                sh 'ls -l $WORKSPACE'
+            }
+        }
+        stage('Unit Test'){
+            steps{
+                dir('./java-tomcat-sample'){
+                    sh '''
+                        echo "Izvrsavanje Unit testova..."
+                        mvn test
+                    '''
+                }
+            }
+        }
+        stage('Build'){
+            steps{
+                echo "Build verzina: ${VERSION} sa sufixom :${RELEASE_VERSION}"
+                sh'mvn -f java-tomcat-sample/pom.xml clean package '
+            }
+        }
+    }
+}
