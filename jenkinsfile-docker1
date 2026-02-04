@@ -4,11 +4,13 @@ pipeline{
     }
     stages{
         stage('Provera'){
+            steps{
             sh '''
             whoami
             echo "Docker Agent"
             cat /etc/os-release
             '''
+        }
         }
     }
 }
