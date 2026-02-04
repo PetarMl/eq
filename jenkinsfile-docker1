@@ -1,0 +1,14 @@
+pipeline{
+    agent{
+        label 'docker-agent'
+    }
+    stages{
+        stage('Provera'){
+            sh '''
+            whoami
+            echo "Docker Agent"
+            cat /etc/os-release
+            '''
+        }
+    }
+}
