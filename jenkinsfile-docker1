@@ -9,6 +9,7 @@ pipeline{
             whoami
             echo "Docker Agent"
             cat /etc/os-release
+            echo "${BUILD_NUMBER}"
             '''
         }
         }
